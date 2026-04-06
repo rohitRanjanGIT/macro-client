@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../constants/colors';
 import CalorieRing from '../components/CalorieRing';
 import MacroLegend from '../components/MacroLegend';
@@ -46,6 +47,7 @@ const meals: MealData[] = [
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<any>();
 
   const [waterGlasses, setWaterGlasses] = useState(0);
   const [selectedMeal, setSelectedMeal] = useState<MealData | null>(null);
@@ -86,9 +88,9 @@ export default function HomeScreen() {
           <Text style={styles.date}>{dateString}</Text>
           <Text style={styles.greeting}>Hi there</Text>
         </View>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>Y</Text>
-        </View>
+        <TouchableOpacity style={styles.avatar} onPress={() => navigation.navigate('Settings')}>
+          <Text style={styles.avatarText}>R</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Calorie Ring */}

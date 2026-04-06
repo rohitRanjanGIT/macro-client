@@ -1,15 +1,34 @@
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import TabNavigator from './src/navigation/TabNavigator';
+import { ActivityIndicator, View } from 'react-native';
+import { OnboardingProvider, useOnboarding } from './src/context/OnboardingContext';
+import OnboardingNavigator from './src/navigation/OnboardingNavigator';
+import AppNavigator from './src/navigation/AppNavigator';
+
+function Root() {
+  const { isOnboarded, loading } = useOnboarding();
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#1A1A2E', alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color="#FFFFFF" />
+      </View>
+    );
+  }
+
+  return isOnboarded ? <AppNavigator /> : <OnboardingNavigator />;
+}
 
 export default function App() {
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <StatusBar style="light" />
-        <TabNavigator />
-      </NavigationContainer>
+      <OnboardingProvider>
+        <NavigationContainer>
+          <StatusBar style="light" />
+          <Root />
+        </NavigationContainer>
+      </OnboardingProvider>
     </SafeAreaProvider>
   );
 }
