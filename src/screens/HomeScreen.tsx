@@ -12,6 +12,7 @@ import MealDetailModal, { MealMacros } from '../components/MealDetailModal';
 import WaterEditModal from '../components/WaterEditModal';
 import AddFoodModal from '../components/AddFoodModal';
 import VoiceLogModal from '../components/VoiceLogModal';
+import CameraModal from '../components/CameraModal';
 
 interface MealData {
   type: 'breakfast' | 'lunch' | 'snack' | 'dinner';
@@ -54,6 +55,7 @@ export default function HomeScreen() {
   const [waterModalVisible, setWaterModalVisible] = useState(false);
   const [addFoodVisible, setAddFoodVisible] = useState(false);
   const [voiceLogVisible, setVoiceLogVisible] = useState(false);
+  const [cameraVisible, setCameraVisible] = useState(false);
 
   // Mock data matching the design
   const data = {
@@ -135,7 +137,10 @@ export default function HomeScreen() {
         label="Add dinner"
         onPress={() => setAddFoodVisible(true)}
         onVoicePress={() => setVoiceLogVisible(true)}
-        onCameraPress={() => {}}
+        onCameraPress={() => {
+          setAddFoodVisible(false);
+          setCameraVisible(true);
+        }}
       />
 
       {/* Meal Detail Modal */}
@@ -166,6 +171,16 @@ export default function HomeScreen() {
           setAddFoodVisible(false);
           setVoiceLogVisible(true);
         }}
+        onCameraPress={() => {
+          setAddFoodVisible(false);
+          setCameraVisible(true);
+        }}
+      />
+
+      {/* Camera Modal */}
+      <CameraModal
+        visible={cameraVisible}
+        onClose={() => setCameraVisible(false)}
       />
 
       {/* Voice Log Modal */}

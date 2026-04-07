@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { Colors } from '../constants/colors';
 
 interface CalorieRingProps {
@@ -24,33 +24,62 @@ export default function CalorieRing({
   proteinGoal,
   fatGoal,
 }: CalorieRingProps) {
-  const size = 200;
-  const strokeWidth = 14;
+  const size = 220;
   const center = size / 2;
 
-  // Three rings: outer = carbs, middle = protein, inner = fat
+  // Outer → inner: carbs, protein, fat
+  // Each ring is thinner as it gets inward, with more breathing room between them
   const rings = [
-    { radius: 85, progress: carbs / carbsGoal, color: Colors.calorieRingCarbs },
-    { radius: 68, progress: protein / proteinGoal, color: Colors.calorieRingProtein },
-    { radius: 51, progress: fat / fatGoal, color: Colors.calorieRingFat },
+    {
+      radius: 92,
+      strokeWidth: 13,
+      progress: carbs / carbsGoal,
+      color: Colors.calorieRingCarbs,
+      trackColor: '#4ADE8018',
+    },
+    {
+      radius: 73,
+      strokeWidth: 11,
+      progress: protein / proteinGoal,
+      color: Colors.calorieRingProtein,
+      trackColor: '#3B82F618',
+    },
+    {
+      radius: 56,
+      strokeWidth: 9,
+      progress: fat / fatGoal,
+      color: Colors.calorieRingFat,
+      trackColor: '#F9731618',
+    },
   ];
 
   return (
     <View style={styles.container}>
       <Svg width={size} height={size}>
+        <Defs>
+          {/* Subtle inner shadow overlay for the center disc */}
+          <RadialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+            <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.04" />
+            <Stop offset="100%" stopColor="#000000" stopOpacity="0" />
+          </RadialGradient>
+        </Defs>
+
         {rings.map((ring, index) => {
           const circumference = 2 * Math.PI * ring.radius;
-          const strokeDashoffset = circumference * (1 - Math.min(ring.progress, 1));
+          const progress = Math.min(ring.progress, 1);
+          const strokeDashoffset = circumference * (1 - progress);
+
           return (
             <React.Fragment key={index}>
-              {/* Background ring */}
+              {/* Track ring */}
               <Circle
                 cx={center}
                 cy={center}
                 r={ring.radius}
-                stroke={Colors.cardBackgroundLight}
-                strokeWidth={strokeWidth}
+                stroke={ring.trackColor}
+                strokeWidth={ring.strokeWidth}
                 fill="none"
+                strokeLinecap="round"
               />
               {/* Progress ring */}
               <Circle
@@ -58,9 +87,9 @@ export default function CalorieRing({
                 cy={center}
                 r={ring.radius}
                 stroke={ring.color}
-                strokeWidth={strokeWidth}
+                strokeWidth={ring.strokeWidth}
                 fill="none"
-                strokeDasharray={circumference}
+                strokeDasharray={`${circumference} ${circumference}`}
                 strokeDashoffset={strokeDashoffset}
                 strokeLinecap="round"
                 rotation="-90"
@@ -70,9 +99,11 @@ export default function CalorieRing({
           );
         })}
       </Svg>
+
       {/* Center text */}
       <View style={styles.centerText}>
         <Text style={styles.calorieCount}>{eaten.toLocaleString()}</Text>
+        <View style={styles.divider} />
         <Text style={styles.calorieLabel}>of {goal.toLocaleString()} kcal</Text>
       </View>
     </View>
@@ -88,15 +119,26 @@ const styles = StyleSheet.create({
   centerText: {
     position: 'absolute',
     alignItems: 'center',
+    gap: 3,
   },
   calorieCount: {
-    fontSize: 36,
-    fontWeight: '700',
+    fontSize: 38,
+    fontWeight: '800',
     color: Colors.text,
+    letterSpacing: -1,
+    lineHeight: 44,
+  },
+  divider: {
+    width: 28,
+    height: 1.5,
+    borderRadius: 1,
+    backgroundColor: Colors.border,
+    marginVertical: 1,
   },
   calorieLabel: {
-    fontSize: 13,
+    fontSize: 12,
     color: Colors.textSecondary,
-    marginTop: 2,
+    fontWeight: '500',
+    letterSpacing: 0.2,
   },
 });

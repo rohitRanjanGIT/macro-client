@@ -7,64 +7,18 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import Svg, { Circle, Line } from 'react-native-svg';
+import Svg, { Circle, Line, Path } from 'react-native-svg';
 import { Colors } from '../../constants/colors';
 import CreateRecipeModal from './CreateRecipeModal';
-
-interface Recipe {
-  id: string;
-  name: string;
-  serving: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  ingredients: number;
-  tags: string[];
-}
+import { useRecipes, SavedRecipe } from '../../context/RecipeContext';
 
 const FILTERS = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Snack'];
 
-const RECIPES: Recipe[] = [
-  {
-    id: '1',
-    name: 'Chole (homemade)',
-    serving: '1 katori (200g)',
-    calories: 285,
-    protein: 12,
-    carbs: 34,
-    fat: 10,
-    ingredients: 6,
-    tags: ['lunch', 'dinner'],
-  },
-  {
-    id: '2',
-    name: 'Morning oats combo',
-    serving: 'oats + banana + honey + milk',
-    calories: 360,
-    protein: 14,
-    carbs: 58,
-    fat: 8,
-    ingredients: 4,
-    tags: ['breakfast', 'combo'],
-  },
-  {
-    id: '3',
-    name: 'Roti + dal + raita',
-    serving: '2 roti + 1 katori + 1 sm bowl',
-    calories: 565,
-    protein: 28,
-    carbs: 72,
-    fat: 14,
-    ingredients: 3,
-    tags: ['dinner', 'combo'],
-  },
-];
-
-function RecipeCard({ recipe }: { recipe: Recipe }) {
+function RecipeCard({ recipe, onDelete }: { recipe: SavedRecipe; onDelete: () => void }) {
   return (
     <TouchableOpacity style={styles.recipeCard} activeOpacity={0.7}>
       <View style={styles.recipeHeader}>
+        <View style={[styles.colorDot, { backgroundColor: recipe.color }]} />
         <Text style={styles.recipeName}>{recipe.name}</Text>
         <View style={styles.recipeCal}>
           <Text style={styles.recipeCalNum}>{recipe.calories}</Text>
@@ -82,19 +36,39 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
           </View>
         ))}
         <View style={styles.tag}>
-          <Text style={styles.tagText}>{recipe.ingredients} ingredients</Text>
+          <Text style={styles.tagText}>{recipe.ingredients.length} ingredients</Text>
         </View>
+
+        {/* Delete button — only for user-created recipes */}
+        {recipe.id.startsWith('user-') && (
+          <TouchableOpacity
+            style={styles.deleteBtn}
+            onPress={onDelete}
+            hitSlop={8}
+          >
+            <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
+              <Path
+                d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"
+                stroke={Colors.danger}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+          </TouchableOpacity>
+        )}
       </View>
     </TouchableOpacity>
   );
 }
 
 export default function RecipesView() {
+  const { recipes, deleteRecipe } = useRecipes();
   const [activeFilter, setActiveFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [createModalVisible, setCreateModalVisible] = useState(false);
 
-  const filteredRecipes = RECIPES.filter((recipe) => {
+  const filteredRecipes = recipes.filter((recipe) => {
     const matchesFilter =
       activeFilter === 'All' || recipe.tags.includes(activeFilter.toLowerCase());
     const matchesSearch =
@@ -142,8 +116,15 @@ export default function RecipesView() {
 
       {/* Recipe cards */}
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.listContent}>
+        {filteredRecipes.length === 0 && (
+          <Text style={styles.emptyText}>No recipes found</Text>
+        )}
         {filteredRecipes.map((recipe) => (
-          <RecipeCard key={recipe.id} recipe={recipe} />
+          <RecipeCard
+            key={recipe.id}
+            recipe={recipe}
+            onDelete={() => deleteRecipe(recipe.id)}
+          />
         ))}
 
         {/* Create new recipe */}
@@ -205,7 +186,6 @@ const styles = StyleSheet.create({
   filterPillActive: {
     backgroundColor: Colors.text,
     borderColor: Colors.text,
-    transform: [{ scale: 1 }],
   },
   filterText: {
     fontSize: 13,
@@ -218,6 +198,13 @@ const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 100,
   },
+  emptyText: {
+    color: Colors.textMuted,
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 32,
+    marginBottom: 16,
+  },
   recipeCard: {
     backgroundColor: Colors.cardBackground,
     borderRadius: 12,
@@ -226,9 +213,14 @@ const styles = StyleSheet.create({
   },
   recipeHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: 4,
+    gap: 8,
+  },
+  colorDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   recipeName: {
     fontSize: 16,
@@ -255,16 +247,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textSecondary,
     marginBottom: 6,
+    marginLeft: 18,
   },
   recipeMacros: {
     fontSize: 12,
     color: Colors.textMuted,
     marginBottom: 10,
+    marginLeft: 18,
   },
   tagRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
+    alignItems: 'center',
   },
   tag: {
     backgroundColor: Colors.background,
@@ -277,17 +272,25 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: Colors.textSecondary,
   },
+  deleteBtn: {
+    marginLeft: 'auto',
+    padding: 4,
+    backgroundColor: Colors.danger + '15',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: Colors.danger + '40',
+  },
   createBtn: {
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: Colors.border,
+    borderColor: Colors.accent + '60',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
   },
   createBtnText: {
     fontSize: 14,
-    fontWeight: '500',
-    color: Colors.textMuted,
+    fontWeight: '600',
+    color: Colors.accent,
   },
 });
