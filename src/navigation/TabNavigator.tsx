@@ -6,7 +6,7 @@ import { Colors } from '../constants/colors';
 import HomeScreen from '../screens/HomeScreen';
 import PrepScreen from '../screens/PrepScreen';
 import ScanScreen from '../screens/ScanScreen';
-import ProgressScreen from '../screens/ProgressScreen';
+import ProgressScreen from '../screens/Progress';
 import SocialScreen from '../screens/SocialScreen';
 
 const Tab = createBottomTabNavigator();
