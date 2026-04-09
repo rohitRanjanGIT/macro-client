@@ -12,7 +12,7 @@ import {
 import Svg, { Path, Circle, Line } from 'react-native-svg';
 import { Colors } from '../constants/colors';
 import { useRecipes, SavedRecipe } from '../context/RecipeContext';
-import CreateRecipeModal from './prep/CreateRecipeModal';
+import CreateRecipeModal from '../screens/PrepScreen/CreateRecipeModal';
 
 // ─── Data types ───────────────────────────────────────────────────────────────
 
