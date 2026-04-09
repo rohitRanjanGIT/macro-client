@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ActivityIndicator, View } from 'react-native';
 import { OnboardingProvider, useOnboarding } from './src/context/OnboardingContext';
 import { RecipeProvider } from './src/context/RecipeContext';
+import { ComboProvider } from './src/context/ComboContext';
 import OnboardingNavigator from './src/navigation/OnboardingNavigator';
 import AppNavigator from './src/navigation/AppNavigator';
 
@@ -26,10 +27,12 @@ export default function App() {
     <SafeAreaProvider>
       <OnboardingProvider>
         <RecipeProvider>
-          <NavigationContainer>
-            <StatusBar style="light" />
-            <Root />
-          </NavigationContainer>
+          <ComboProvider>
+            <NavigationContainer>
+              <StatusBar style="light" />
+              <Root />
+            </NavigationContainer>
+          </ComboProvider>
         </RecipeProvider>
       </OnboardingProvider>
     </SafeAreaProvider>

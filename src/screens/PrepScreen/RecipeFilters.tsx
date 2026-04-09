@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
 
 const FILTERS = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Snack'];
@@ -11,12 +11,7 @@ interface RecipeFiltersProps {
 
 export default function RecipeFilters({ activeFilter, onFilterChange }: RecipeFiltersProps) {
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.filterRow}
-      style={styles.filterScroll}
-    >
+    <View style={styles.filterRow}>
       {FILTERS.map((item) => (
         <TouchableOpacity
           key={item}
@@ -29,32 +24,24 @@ export default function RecipeFilters({ activeFilter, onFilterChange }: RecipeFi
           </Text>
         </TouchableOpacity>
       ))}
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  filterScroll: {
-    flexGrow: 0,
-    marginBottom: 16,
-    overflow: 'visible',
-  },
   filterRow: {
+    flexDirection: 'row',
     gap: 8,
-    alignItems: 'center',
+    marginBottom: 16,
   },
   filterPill: {
-    paddingHorizontal: 18,
-    height: 34,
-    borderRadius: 17,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: Colors.cardBackground,
   },
   filterPillActive: {
     backgroundColor: Colors.text,
-    borderColor: Colors.text,
   },
   filterText: {
     fontSize: 13,
