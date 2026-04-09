@@ -7,7 +7,7 @@ import HomeScreen from '../screens/HomeScreen';
 import PrepScreen from '../screens/PrepScreen';
 import ScanScreen from '../screens/ScanScreen';
 import ProgressScreen from '../screens/Progress';
-import SocialScreen from '../screens/SocialScreen';
+import SocialScreen from '../screens/Social';
 
 const Tab = createBottomTabNavigator();
 
@@ -127,8 +127,8 @@ export default function TabNavigator() {
 const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: Colors.background,
-    borderTopColor: Colors.border,
-    borderTopWidth: 1,
+    borderTopWidth: 0,
+    elevation: 0,
     height: 70,
     paddingBottom: 10,
     paddingTop: 8,

@@ -24,6 +24,8 @@ interface MealDetailModalProps {
   name: string;
   description: string;
   macros: MealMacros;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 function MacroBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
@@ -39,7 +41,7 @@ function MacroBar({ label, value, max, color }: { label: string; value: number; 
   );
 }
 
-export default function MealDetailModal({ visible, onClose, name, description, macros }: MealDetailModalProps) {
+export default function MealDetailModal({ visible, onClose, name, description, macros, onEdit, onDelete }: MealDetailModalProps) {
   const totalMacroGrams = macros.carbs + macros.protein + macros.fat;
   const carbsPct = totalMacroGrams > 0 ? Math.round((macros.carbs / totalMacroGrams) * 100) : 0;
   const proteinPct = totalMacroGrams > 0 ? Math.round((macros.protein / totalMacroGrams) * 100) : 0;
@@ -47,15 +49,19 @@ export default function MealDetailModal({ visible, onClose, name, description, m
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.modal} onPress={() => {}}>
+      <View style={styles.overlay}>
+        {/* Backdrop — sibling, not parent, so it can't swallow modal touches */}
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+
+        {/* Modal content — no Pressable wrapper */}
+        <View style={styles.modal}>
           {/* Header */}
           <View style={styles.header}>
-            <View>
+            <View style={styles.headerText}>
               <Text style={styles.title}>{name}</Text>
               <Text style={styles.description}>{description}</Text>
             </View>
-            <TouchableOpacity onPress={onClose} hitSlop={12}>
+            <TouchableOpacity onPress={onClose} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
               <Text style={styles.closeBtn}>✕</Text>
             </TouchableOpacity>
           </View>
@@ -99,8 +105,18 @@ export default function MealDetailModal({ visible, onClose, name, description, m
           {macros.sugar !== undefined && (
             <MacroBar label="Sugar" value={macros.sugar} max={50} color="#F472B6" />
           )}
-        </Pressable>
-      </Pressable>
+
+          {/* Actions */}
+          <View style={styles.actions}>
+            <TouchableOpacity style={styles.editBtn} onPress={onEdit} activeOpacity={0.75}>
+              <Text style={styles.editBtnText}>Edit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.deleteBtn} onPress={onDelete} activeOpacity={0.75}>
+              <Text style={styles.deleteBtnText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
     </Modal>
   );
 }
@@ -124,6 +140,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 12,
+  },
+  headerText: {
+    flex: 1,
+    marginRight: 12,
   },
   title: {
     fontSize: 20,
@@ -218,5 +238,37 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.text,
     textAlign: 'right',
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 24,
+  },
+  editBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    alignItems: 'center',
+  },
+  editBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.text,
+  },
+  deleteBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 12,
+    backgroundColor: Colors.danger + '18',
+    borderWidth: 1,
+    borderColor: Colors.danger + '40',
+    alignItems: 'center',
+  },
+  deleteBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.danger,
   },
 });

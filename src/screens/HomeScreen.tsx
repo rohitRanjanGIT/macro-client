@@ -14,6 +14,7 @@ import VoiceLogModal from '../components/VoiceLogModal';
 import CameraModal from '../components/CameraModal';
 
 interface MealData {
+  id: string;
   type: 'breakfast' | 'lunch' | 'snack' | 'dinner';
   name: string;
   description: string;
@@ -21,8 +22,9 @@ interface MealData {
   macros: MealMacros;
 }
 
-const meals: MealData[] = [
+const INITIAL_MEALS: MealData[] = [
   {
+    id: '1',
     type: 'breakfast',
     name: 'Breakfast',
     description: 'Oats, banana, coffee',
@@ -30,6 +32,7 @@ const meals: MealData[] = [
     macros: { calories: 420, carbs: 62, protein: 14, fat: 12, fiber: 6, sugar: 18 },
   },
   {
+    id: '2',
     type: 'lunch',
     name: 'Lunch',
     description: 'Grilled chicken salad',
@@ -37,6 +40,7 @@ const meals: MealData[] = [
     macros: { calories: 524, carbs: 34, protein: 48, fat: 18, fiber: 5, sugar: 6 },
   },
   {
+    id: '3',
     type: 'snack',
     name: 'Snack',
     description: 'Greek yogurt, almonds',
@@ -49,6 +53,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
 
+  const [meals, setMeals] = useState<MealData[]>(INITIAL_MEALS);
   const [waterGlasses, setWaterGlasses] = useState(0);
   const [selectedMeal, setSelectedMeal] = useState<MealData | null>(null);
   const [waterModalVisible, setWaterModalVisible] = useState(false);
@@ -133,6 +138,15 @@ export default function HomeScreen() {
           name={selectedMeal.name}
           description={selectedMeal.description}
           macros={selectedMeal.macros}
+          onEdit={() => {
+            setSelectedMeal(null);
+            setAddFoodVisible(true);
+          }}
+          onDelete={() => {
+            const idToRemove = selectedMeal.id;
+            setSelectedMeal(null);
+            setMeals((prev) => prev.filter((m) => m.id !== idToRemove));
+          }}
         />
       )}
 
