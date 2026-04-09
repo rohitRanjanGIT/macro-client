@@ -6,8 +6,7 @@ import { Colors } from '../constants/colors';
 import CalorieRing from '../components/CalorieRing';
 import MacroLegend from '../components/MacroLegend';
 import StatsRow from '../components/StatsRow';
-import MealCard from '../components/MealCard';
-import AddMealButton from '../components/AddMealButton';
+import LogMealCard from '../components/LogMealCard';
 import MealDetailModal, { MealMacros } from '../components/MealDetailModal';
 import WaterEditModal from '../components/WaterEditModal';
 import AddFoodModal from '../components/AddFoodModal';
@@ -119,28 +118,11 @@ export default function HomeScreen() {
         onLongPressWater={() => setWaterModalVisible(true)}
       />
 
-      {/* Today's Meals */}
-      <Text style={styles.sectionTitle}>Today's meals</Text>
-
-      {meals.map((meal) => (
-        <MealCard
-          key={meal.type}
-          type={meal.type}
-          name={meal.name}
-          description={meal.description}
-          calories={meal.calories}
-          onLongPress={() => setSelectedMeal(meal)}
-        />
-      ))}
-
-      <AddMealButton
-        label="Add dinner"
-        onPress={() => setAddFoodVisible(true)}
-        onVoicePress={() => setVoiceLogVisible(true)}
-        onCameraPress={() => {
-          setAddFoodVisible(false);
-          setCameraVisible(true);
-        }}
+      {/* Unified Log Meal Card */}
+      <LogMealCard 
+        loggedMeals={meals}
+        onAddMeal={() => setAddFoodVisible(true)} 
+        onLongPressMeal={(meal) => setSelectedMeal(meal)}
       />
 
       {/* Meal Detail Modal */}
