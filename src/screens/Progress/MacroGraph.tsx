@@ -3,7 +3,7 @@ import { View, Text, Dimensions, StyleSheet } from 'react-native';
 import { Card } from 'react-native-paper';
 import { Colors } from '../../constants/colors';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
+
 
 interface MacroGraphProps {
   data: { day: string; protein: number; carbs: number; fat: number }[];
@@ -30,43 +30,45 @@ export default function MacroGraph({ data }: MacroGraphProps) {
             <Text style={styles.yLabel}>0g</Text>
           </View>
 
-          {/* Chart Area */}
-          <View style={styles.chartArea}>
-            {/* Background grid lines */}
-            <View style={[styles.gridLine, { top: 0 }]} />
-            <View style={[styles.gridLine, { top: CHART_HEIGHT / 2 }]} />
-            <View style={[styles.gridLine, { top: CHART_HEIGHT }]} />
+          <View style={{ flex: 1 }}>
+            {/* Chart Area */}
+            <View style={styles.chartArea}>
+              {/* Background grid lines */}
+              <View style={[styles.gridLine, { bottom: 160 }]} />
+              <View style={[styles.gridLine, { bottom: 80 }]} />
+              <View style={[styles.gridLine, { bottom: 0 }]} />
 
-            {/* Bars */}
-            <View style={styles.barsContainer}>
-              {data.map((d) => (
-                <View key={d.day} style={styles.dayGroup}>
-                  {/* Protein Bar */}
-                  <View
-                    style={[
-                      styles.bar,
-                      { backgroundColor: Colors.calorieRingProtein },
-                      { height: (d.protein / maxVal) * CHART_HEIGHT },
-                    ]}
-                  />
-                  {/* Carbs Bar */}
-                  <View
-                    style={[
-                      styles.bar,
-                      { backgroundColor: Colors.calorieRingCarbs },
-                      { height: (d.carbs / maxVal) * CHART_HEIGHT },
-                    ]}
-                  />
-                  {/* Fat Bar */}
-                  <View
-                    style={[
-                      styles.bar,
-                      { backgroundColor: Colors.calorieRingFat },
-                      { height: (d.fat / maxVal) * CHART_HEIGHT },
-                    ]}
-                  />
-                </View>
-              ))}
+              {/* Bars */}
+              <View style={styles.barsContainer}>
+                {data.map((d) => (
+                  <View key={d.day} style={styles.dayGroup}>
+                    {/* Protein Bar */}
+                    <View
+                      style={[
+                        styles.bar,
+                        { backgroundColor: Colors.calorieRingProtein },
+                        { height: (d.protein / maxVal) * CHART_HEIGHT },
+                      ]}
+                    />
+                    {/* Carbs Bar */}
+                    <View
+                      style={[
+                        styles.bar,
+                        { backgroundColor: Colors.calorieRingCarbs },
+                        { height: (d.carbs / maxVal) * CHART_HEIGHT },
+                      ]}
+                    />
+                    {/* Fat Bar */}
+                    <View
+                      style={[
+                        styles.bar,
+                        { backgroundColor: Colors.calorieRingFat },
+                        { height: (d.fat / maxVal) * CHART_HEIGHT },
+                      ]}
+                    />
+                  </View>
+                ))}
+              </View>
             </View>
 
             {/* X-axis Labels */}
@@ -88,7 +90,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.cardBackground,
     borderRadius: 14,
-    width: SCREEN_WIDTH - 40,
+    width: '100%',
   },
   content: {
     padding: 12,

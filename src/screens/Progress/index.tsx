@@ -20,7 +20,7 @@ import GoalProgress from './GoalProgress';
 import InsightCard from './InsightCard';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_WIDTH = SCREEN_WIDTH - 40;
+// CARD_WIDTH is removed because we will dynamically calculate it via onLayout for responsive setups.
 
 // ─── Dummy Data ─────────────────────────────────────────────────────────────
 
@@ -100,6 +100,8 @@ function GraphPager({
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
+  // Initialize to a reasonably safe fallback, it will quickly conform on the first layout ping.
+  const [pagerWidth, setPagerWidth] = useState(Dimensions.get('window').width - 40);
 
   const graphs = [
     <CalorieGraph data={data} goal={goal} />,
@@ -107,14 +109,14 @@ function GraphPager({
   ];
 
   return (
-    <View>
+    <View onLayout={(e) => setPagerWidth(e.nativeEvent.layout.width)}>
       {/* Horizontal pager with Animated scale/opacity pop */}
       <Animated.ScrollView
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         scrollEventThrottle={16}
-        snapToInterval={CARD_WIDTH}
+        snapToInterval={pagerWidth}
         decelerationRate="fast"
         contentContainerStyle={styles.pagerContent}
         onScroll={Animated.event(
@@ -122,8 +124,8 @@ function GraphPager({
           {
             useNativeDriver: true,
             listener: (e: any) => {
-              const page = Math.round(e.nativeEvent.contentOffset.x / CARD_WIDTH);
-              if (page !== activeIndex) {
+              const page = Math.round(e.nativeEvent.contentOffset.x / pagerWidth);
+              if (page !== activeIndex && !isNaN(page)) {
                 setActiveIndex(page);
               }
             },
@@ -132,26 +134,26 @@ function GraphPager({
       >
         {graphs.map((Child, index) => {
           const inputRange = [
-            (index - 1) * CARD_WIDTH,
-            index * CARD_WIDTH,
-            (index + 1) * CARD_WIDTH,
+            (index - 1) * pagerWidth,
+            index * pagerWidth,
+            (index + 1) * pagerWidth,
           ];
 
           const scale = scrollX.interpolate({
             inputRange,
-            outputRange: [0.93, 1, 0.93],
+            outputRange: [0.9, 1, 0.9],
             extrapolate: 'clamp',
           });
           const opacity = scrollX.interpolate({
             inputRange,
-            outputRange: [0.6, 1, 0.6],
+            outputRange: [0, 1, 0], // Fully hide adjacent cards when locked in center
             extrapolate: 'clamp',
           });
 
           return (
             <Animated.View 
               key={index} 
-              style={{ width: CARD_WIDTH, transform: [{ scale }], opacity }}
+              style={{ width: pagerWidth, transform: [{ scale }], opacity }}
             >
               {Child}
             </Animated.View>
@@ -163,9 +165,9 @@ function GraphPager({
       <View style={styles.dotsRow}>
         {[0, 1].map((i) => {
           const dotInputRange = [
-            (i - 1) * CARD_WIDTH,
-            i * CARD_WIDTH,
-            (i + 1) * CARD_WIDTH,
+            (i - 1) * pagerWidth,
+            i * pagerWidth,
+            (i + 1) * pagerWidth,
           ];
           const dotScale = scrollX.interpolate({
             inputRange: dotInputRange,

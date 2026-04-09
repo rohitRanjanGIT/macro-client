@@ -3,7 +3,7 @@ import { View, Text, Dimensions, StyleSheet } from 'react-native';
 import { Card } from 'react-native-paper';
 import { Colors } from '../../constants/colors';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
+
 
 interface CalorieGraphProps {
   data: { day: string; calories: number }[];
@@ -28,46 +28,48 @@ export default function CalorieGraph({ data, goal }: CalorieGraphProps) {
             <Text style={styles.yLabel}>0</Text>
           </View>
 
-          {/* Chart Area */}
-          <View style={styles.chartArea}>
-            {/* Background grid lines */}
-            <View style={[styles.gridLine, { top: 0 }]} />
-            <View style={[styles.gridLine, { top: CHART_HEIGHT / 2 }]} />
-            <View style={[styles.gridLine, { top: CHART_HEIGHT }]} />
+          <View style={{ flex: 1 }}>
+            {/* Chart Area */}
+            <View style={styles.chartArea}>
+              {/* Background grid lines */}
+              <View style={[styles.gridLine, { bottom: 160 }]} />
+              <View style={[styles.gridLine, { bottom: 80 }]} />
+              <View style={[styles.gridLine, { bottom: 0 }]} />
 
-            {/* Goal Line */}
-            <View style={[styles.goalLine, { bottom: (goal / maxVal) * CHART_HEIGHT }]} />
+              {/* Goal Line */}
+              <View style={[styles.goalLine, { bottom: (goal / maxVal) * CHART_HEIGHT }]} />
 
-            {/* Bars */}
-            <View style={styles.barsContainer}>
-              {data.map((d, i) => {
-                const isOver = d.calories > goal;
-                const baseHeight = (Math.min(d.calories, goal) / maxVal) * CHART_HEIGHT;
-                const overflowHeight = isOver ? ((d.calories - goal) / maxVal) * CHART_HEIGHT : 0;
-                
-                return (
-                  <View key={i} style={styles.dayGroup}>
-                    {/* Excess Bar */}
-                    {isOver && (
+              {/* Bars */}
+              <View style={styles.barsContainer}>
+                {data.map((d, i) => {
+                  const isOver = d.calories > goal;
+                  const baseHeight = (Math.min(d.calories, goal) / maxVal) * CHART_HEIGHT;
+                  const overflowHeight = isOver ? ((d.calories - goal) / maxVal) * CHART_HEIGHT : 0;
+                  
+                  return (
+                    <View key={i} style={styles.dayGroup}>
+                      {/* Excess Bar */}
+                      {isOver && (
+                        <View
+                          style={[
+                            styles.bar,
+                            styles.barTop,
+                            { backgroundColor: Colors.danger + 'CC', height: overflowHeight }
+                          ]}
+                        />
+                      )}
+                      {/* Base Bar */}
                       <View
                         style={[
                           styles.bar,
-                          styles.barTop,
-                          { backgroundColor: Colors.danger + 'CC', height: overflowHeight }
+                          !isOver && styles.barTop,
+                          { backgroundColor: Colors.accent + '99', height: baseHeight }
                         ]}
                       />
-                    )}
-                    {/* Base Bar */}
-                    <View
-                      style={[
-                        styles.bar,
-                        !isOver && styles.barTop,
-                        { backgroundColor: Colors.accent + '99', height: baseHeight }
-                      ]}
-                    />
-                  </View>
-                );
-              })}
+                    </View>
+                  );
+                })}
+              </View>
             </View>
 
             {/* X-axis Labels */}
@@ -89,7 +91,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.cardBackground,
     borderRadius: 14,
-    width: SCREEN_WIDTH - 40,
+    width: '100%',
   },
   content: {
     padding: 12,
