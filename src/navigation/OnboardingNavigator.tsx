@@ -1,6 +1,5 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import WelcomeScreen from '../screens/onboarding/WelcomeScreen';
 import GoalScreen from '../screens/onboarding/GoalScreen';
 import AboutYouScreen from '../screens/onboarding/AboutYouScreen';
 import ActivityLevelScreen from '../screens/onboarding/ActivityLevelScreen';
@@ -17,7 +16,6 @@ export default function OnboardingNavigator() {
         contentStyle: { backgroundColor: '#1A1A2E' },
       }}
     >
-      <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="Goal" component={GoalScreen} />
       <Stack.Screen name="AboutYou" component={AboutYouScreen} />
       <Stack.Screen name="ActivityLevel" component={ActivityLevelScreen} />

@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { Colors } from '../../constants/colors';
+import { useApi } from '../../lib/useApi';
 import {
   useOnboarding,
   calculateBMR,
@@ -23,6 +24,8 @@ const GOAL_LABELS: Record<string, string> = {
 
 export default function PlanResultScreen({ navigation }: any) {
   const { data, completeOnboarding } = useOnboarding();
+  const api = useApi();
+  const [syncing, setSyncing] = useState(false);
 
   const plan = useMemo(() => {
     if (!data.sex || !data.goal || !data.activityLevel) return null;
@@ -53,8 +56,38 @@ export default function PlanResultScreen({ navigation }: any) {
     };
   }, [data]);
 
-  const handleStart = () => {
-    completeOnboarding();
+  const handleStart = async () => {
+    if (!data.sex || !data.goal || !data.activityLevel) return;
+    setSyncing(true);
+    try {
+      const weightKg = data.weightUnit === 'lb' ? parseFloat(data.weight) * 0.453592 : parseFloat(data.weight);
+      const heightCm = data.heightUnit === 'ft' ? parseFloat(data.height) * 30.48 : parseFloat(data.height);
+      const age = parseInt(data.age, 10);
+
+      // Sync profile to backend
+      await api('/users/me/profile/', {
+        method: 'PUT',
+        body: {
+          goal: data.goal,
+          sex: data.sex,
+          age,
+          height_cm: Math.round(heightCm * 10) / 10,
+          weight_kg: Math.round(weightKg * 10) / 10,
+          activity_level: data.activityLevel,
+        },
+      });
+
+      // Mark onboarding complete on backend
+      await api('/users/me/onboarding/complete/', { method: 'POST' });
+
+      completeOnboarding();
+    } catch (err: any) {
+      // Still complete locally even if backend sync fails — profile can be re-synced later
+      console.warn('Backend sync failed during onboarding:', err?.message);
+      completeOnboarding();
+    } finally {
+      setSyncing(false);
+    }
   };
 
   if (!plan) return null;
@@ -113,8 +146,12 @@ export default function PlanResultScreen({ navigation }: any) {
       </View>
 
       <View style={styles.bottom}>
-        <TouchableOpacity style={styles.button} onPress={handleStart}>
-          <Text style={styles.buttonText}>Start tracking</Text>
+        <TouchableOpacity style={styles.button} onPress={handleStart} disabled={syncing}>
+          {syncing ? (
+            <ActivityIndicator color={Colors.background} />
+          ) : (
+            <Text style={styles.buttonText}>Start tracking</Text>
+          )}
         </TouchableOpacity>
       </View>
     </SafeAreaView>

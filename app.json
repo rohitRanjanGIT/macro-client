@@ -2,6 +2,7 @@
   "expo": {
     "name": "macro-client",
     "slug": "macro-client",
+    "scheme": "macroclient",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -31,6 +32,9 @@
       "eas": {
         "projectId": "387a9b87-b280-4cce-8aa1-a54a2a0aa126"
       }
-    }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

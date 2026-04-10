@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path, Circle as SvgCircle } from 'react-native-svg';
+import { useAuth, useUser } from '@clerk/clerk-expo';
 import { Colors } from '../constants/colors';
+import { useApi } from '../lib/useApi';
 import {
   useOnboarding,
   calculateBMR,
@@ -20,7 +22,35 @@ const GOAL_LABELS: Record<string, string> = {
 
 export default function SettingsScreen({ navigation }: any) {
   const { data, resetOnboarding } = useOnboarding();
+  const { signOut } = useAuth();
+  const { user } = useUser();
+  const api = useApi();
   const [mealReminders, setMealReminders] = React.useState(true);
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'This will permanently delete your account and all data. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await api('/auth/account/delete/', { method: 'DELETE' });
+            } catch {}
+            resetOnboarding();
+            await signOut();
+          },
+        },
+      ],
+    );
+  };
 
   // Calculate display values
   const weightKg = data.weightUnit === 'lb' ? parseFloat(data.weight) * 0.453592 : parseFloat(data.weight);
@@ -52,11 +82,13 @@ export default function SettingsScreen({ navigation }: any) {
         {/* Profile */}
         <View style={styles.profileRow}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>R</Text>
+            <Text style={styles.avatarText}>
+              {(user?.firstName?.[0] || user?.emailAddresses?.[0]?.emailAddress?.[0] || '?').toUpperCase()}
+            </Text>
           </View>
           <View>
-            <Text style={styles.profileName}>Rohit</Text>
-            <Text style={styles.profileEmail}>rohit@email.com</Text>
+            <Text style={styles.profileName}>{user?.fullName || 'User'}</Text>
+            <Text style={styles.profileEmail}>{user?.emailAddresses?.[0]?.emailAddress || ''}</Text>
           </View>
         </View>
 
@@ -111,11 +143,11 @@ export default function SettingsScreen({ navigation }: any) {
             <Text style={styles.rowLabel}>Privacy policy</Text>
           </TouchableOpacity>
           <Divider />
-          <TouchableOpacity style={styles.row}>
+          <TouchableOpacity style={styles.row} onPress={handleSignOut}>
             <Text style={styles.rowLabel}>Log out</Text>
           </TouchableOpacity>
           <Divider />
-          <TouchableOpacity style={styles.row} onPress={resetOnboarding}>
+          <TouchableOpacity style={styles.row} onPress={handleDeleteAccount}>
             <Text style={[styles.rowLabel, { color: Colors.danger }]}>Delete account</Text>
           </TouchableOpacity>
         </View>
